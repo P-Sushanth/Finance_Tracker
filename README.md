@@ -4,6 +4,24 @@ A grounded, offline-first personal finance tracking mobile app built for Android
 
 ---
 
+## 📥 Downloads (Latest Release v1.0.0)
+
+Choose the optimized APK corresponding to your device's architecture (saving up to 72% storage compared to a universal build):
+
+| Architecture | Target Device | APK Download | File Size | Reduction |
+| :--- | :--- | :--- | :---: | :---: |
+| **ARM 64-bit (`arm64-v8a`)** | **Modern smartphones** (Snapdragon, Tensor, Dimensity, Exynos) | [**`app-arm64-v8a-release.apk`**](https://github.com/P-Sushanth/Finance_Tracker/releases/download/v1.0.0/app-arm64-v8a-release.apk) | **18.3 MB** | **-67%** |
+| **ARM 32-bit (`armeabi-v7a`)** | **Older phones & 32-bit Android OS** | [**`app-armeabi-v7a-release.apk`**](https://github.com/P-Sushanth/Finance_Tracker/releases/download/v1.0.0/app-armeabi-v7a-release.apk) | **15.6 MB** | **-72%** |
+| **x86 64-bit (`x86_64`)** | **Android Emulators, Chromebooks & Intel devices** | [**`app-x86_64-release.apk`**](https://github.com/P-Sushanth/Finance_Tracker/releases/download/v1.0.0/app-x86_64-release.apk) | **19.7 MB** | **-64%** |
+| **Universal (All-in-One)** | Works on any device (bundles all architectures) | [**`app-release.apk`**](https://github.com/P-Sushanth/Finance_Tracker/releases/download/v1.0.0/app-release.apk) | **55.5 MB** | Base |
+
+> **💡 Check your phone's architecture:**
+> Run `adb shell getprop ro.product.cpu.abi` or check your device settings / CPU-Z.
+
+Full release notes and assets are available on the [**GitHub Releases Page**](https://github.com/P-Sushanth/Finance_Tracker/releases/tag/v1.0.0).
+
+---
+
 ## 🌿 Core Features
 
 1. **< 5-Second Frictionless Quick-Add:**
@@ -91,9 +109,19 @@ flutter test
 
 ## 🚀 Building & Running
 
-### Android APK:
+### Optimized Split-per-ABI APKs (Recommended ~15–18 MB):
+```bash
+flutter build apk --release --split-per-abi
+```
+
+### Universal "Fat" APK (~55 MB):
 ```bash
 flutter build apk --release
+```
+
+### Android App Bundle (.aab for Google Play):
+```bash
+flutter build appbundle --release
 ```
 
 ### Local Development:
