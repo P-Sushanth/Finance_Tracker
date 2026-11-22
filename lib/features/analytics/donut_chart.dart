@@ -75,7 +75,10 @@ class _CustomDonutChartState extends State<CustomDonutChart> {
     final centerSubtitle = selectedSlice != null
         ? '${selectedSlice.percentage.toStringAsFixed(0)}%'
         : widget.defaultSubtitle;
-    final centerColor = selectedSlice != null ? selectedSlice.color : AppColors.textPrimaryLight;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final centerColor = selectedSlice != null
+        ? selectedSlice.color
+        : (isDark ? Colors.white : AppColors.textPrimaryLight);
 
     return Column(
       children: [
@@ -129,11 +132,11 @@ class _CustomDonutChartState extends State<CustomDonutChart> {
                     children: [
                       Text(
                         centerLabel.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
-                          color: AppColors.textSecondaryLight,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -158,7 +161,9 @@ class _CustomDonutChartState extends State<CustomDonutChart> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: selectedSlice != null ? selectedSlice.color : AppColors.textSecondaryLight,
+                          color: selectedSlice != null
+                              ? selectedSlice.color
+                              : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -189,10 +194,14 @@ class _CustomDonutChartState extends State<CustomDonutChart> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFEBE9E1) : const Color(0xFFF7F6F2),
+                      color: isSelected
+                          ? (isDark ? const Color(0xFF33383D) : const Color(0xFFE8E5DC))
+                          : (isDark ? const Color(0xFF24272A) : const Color(0xFFF3F1EB)),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? slice.color : const Color(0xFFE5E2D9),
+                        color: isSelected
+                            ? slice.color
+                            : (isDark ? const Color(0xFF383C40) : const Color(0xFFDCD7CC)),
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
@@ -213,7 +222,7 @@ class _CustomDonutChartState extends State<CustomDonutChart> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: isSelected ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
+                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
                           ),
                         ),
                         const SizedBox(width: 6),

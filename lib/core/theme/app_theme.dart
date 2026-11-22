@@ -29,18 +29,19 @@ class AppTheme {
         titleTextStyle: TextStyle(
           color: AppColors.textPrimaryLight,
           fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           letterSpacing: -0.3,
         ),
         iconTheme: IconThemeData(color: AppColors.textPrimaryLight),
       ),
       cardTheme: CardThemeData(
         color: AppColors.surfaceLight,
-        elevation: 0,
+        elevation: 0.5,
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.cardBorderLight, width: 1),
+          side: const BorderSide(color: AppColors.cardBorderLight, width: 1.2),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -52,7 +53,7 @@ class AppTheme {
         headlineMedium: TextStyle(
           color: AppColors.textPrimaryLight,
           fontSize: 24,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           letterSpacing: -0.5,
         ),
         titleLarge: TextStyle(
@@ -64,23 +65,23 @@ class AppTheme {
         titleMedium: TextStyle(
           color: AppColors.textPrimaryLight,
           fontSize: 15,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
         bodyLarge: TextStyle(
           color: AppColors.textPrimaryLight,
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
         bodyMedium: TextStyle(
           color: AppColors.textSecondaryLight,
           fontSize: 12,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
         ),
         labelSmall: TextStyle(
           color: AppColors.textSecondaryLight,
           fontSize: 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
         ),
       ),
     );
@@ -110,7 +111,7 @@ class AppTheme {
         titleTextStyle: TextStyle(
           color: AppColors.textPrimaryDark,
           fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           letterSpacing: -0.3,
         ),
         iconTheme: IconThemeData(color: AppColors.textPrimaryDark),
@@ -121,7 +122,7 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.cardBorderDark, width: 1),
+          side: const BorderSide(color: AppColors.cardBorderDark, width: 1.2),
         ),
       ),
       dividerTheme: const DividerThemeData(
@@ -133,7 +134,7 @@ class AppTheme {
         headlineMedium: TextStyle(
           color: AppColors.textPrimaryDark,
           fontSize: 24,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           letterSpacing: -0.5,
         ),
         titleLarge: TextStyle(
@@ -145,26 +146,25 @@ class AppTheme {
         titleMedium: TextStyle(
           color: AppColors.textPrimaryDark,
           fontSize: 15,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
         bodyLarge: TextStyle(
           color: AppColors.textPrimaryDark,
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
         bodyMedium: TextStyle(
           color: AppColors.textSecondaryDark,
           fontSize: 12,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
         ),
         labelSmall: TextStyle(
           color: AppColors.textSecondaryDark,
           fontSize: 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
         ),
       ),
     );
   }
 }
-

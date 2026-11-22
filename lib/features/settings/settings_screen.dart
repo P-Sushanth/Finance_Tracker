@@ -255,6 +255,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _confirmResetToScratch() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset to Clean Slate', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        content: const Text(
+          'This will remove all preset categories, templates, goals, and recorded transactions so you can start 100% from scratch.\n\nAre you sure you want to proceed?',
+          style: TextStyle(fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.terracotta,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Reset Everything'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await widget.controller.resetToScratch();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All presets and data cleared. You now have a clean slate!'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -416,6 +455,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           label: const Text('Check Updates', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Section 4: Clean Slate & Reset Presets
+            _SectionHeader(title: 'CLEAN SLATE & RESET'),
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: const BorderSide(color: Color(0xFFE5E2D9)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _SettingsActionTile(
+                      icon: Icons.restart_alt_rounded,
+                      iconColor: AppColors.terracotta,
+                      title: 'Reset to Clean Slate (Remove Presets)',
+                      subtitle: 'Wipes all seeded presets, envelopes, and transactions so you start 100% from scratch.',
+                      onTap: _confirmResetToScratch,
                     ),
                   ],
                 ),

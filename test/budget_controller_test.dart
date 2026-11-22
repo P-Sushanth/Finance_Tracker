@@ -1,8 +1,9 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:finance_tracker/core/database/database_helper.dart';
 import 'package:finance_tracker/features/budget/budget_controller.dart';
 import 'package:finance_tracker/features/budget/budget_repository.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:finance_tracker/shared/models/category_model.dart';
 
 void main() {
   sqfliteFfiInit();
@@ -12,11 +13,11 @@ void main() {
     late BudgetController controller;
 
     setUp(() async {
+      final dbName = 'budget_test_${DateTime.now().microsecondsSinceEpoch}.db';
       dbHelper = DatabaseHelper.withFactory(
         factory: databaseFactoryFfi,
-        customPath: inMemoryDatabasePath,
+        customPath: dbName,
       );
-      await dbHelper.database;
       controller = BudgetController(BudgetRepository(dbHelper));
       await controller.loadBudgetData('2026-11');
     });
@@ -25,10 +26,10 @@ void main() {
       await dbHelper.close();
     });
 
-    test('Loads seeded default categories and initial zero balances', () {
-      expect(controller.categories.length, equals(7));
-      expect(controller.expenseCategories.length, equals(5));
-      expect(controller.investmentCategories.length, equals(2));
+    test('Initializes with 0 presets (clean slate) and initial zero balances', () {
+      expect(controller.categories.length, equals(0));
+      expect(controller.expenseCategories.length, equals(0));
+      expect(controller.investmentCategories.length, equals(0));
       expect(controller.totalInflow, equals(0.0));
       expect(controller.totalBurned, equals(0.0));
       expect(controller.totalInvested, equals(0.0));
@@ -48,6 +49,9 @@ void main() {
     });
 
     test('Modifies category budget limit and verifies allocated totals', () async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
+      await controller.createCategory(name: 'House Rent', budgetLimit: 0, type: CategoryType.expense);
+
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
       final rentCat = controller.categories.firstWhere((c) => c.name == 'House Rent');
 
@@ -65,8 +69,8 @@ void main() {
 
     test('Records transaction and immediately deducts from category budget', () async {
       await controller.addIncome(source: 'Salary', amount: 50000.0);
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 10000.0, type: CategoryType.expense);
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
-      await controller.updateCategoryBudget(foodCat.id!, 10000.0);
 
       // 1. Transaction within budget
       await controller.recordTransaction(
@@ -97,6 +101,9 @@ void main() {
 
     test('Differentiates between Expense outflow and Investment asset growth', () async {
       await controller.addIncome(source: 'Salary', amount: 80000.0);
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
+      await controller.createCategory(name: 'SIP & Mutual Funds', budgetLimit: 0, type: CategoryType.investment);
+
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
       final sipCat = controller.categories.firstWhere((c) => c.name == 'SIP & Mutual Funds');
 

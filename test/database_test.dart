@@ -1,24 +1,23 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:finance_tracker/core/database/database_helper.dart';
 import 'package:finance_tracker/shared/models/category_model.dart';
 import 'package:finance_tracker/shared/models/goal_model.dart';
 import 'package:finance_tracker/shared/models/income_model.dart';
 import 'package:finance_tracker/shared/models/template_model.dart';
 import 'package:finance_tracker/shared/models/transaction_model.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  // Initialize ffi for testing SQLite on host machine
   sqfliteFfiInit();
 
   group('DatabaseHelper & Schema Tests', () {
     late DatabaseHelper dbHelper;
 
     setUp(() async {
-      // Use in-memory SQLite database for test isolation
+      final dbName = 'test_db_${DateTime.now().microsecondsSinceEpoch}.db';
       dbHelper = DatabaseHelper.withFactory(
         factory: databaseFactoryFfi,
-        customPath: inMemoryDatabasePath,
+        customPath: dbName,
       );
     });
 
@@ -26,32 +25,39 @@ void main() {
       await dbHelper.close();
     });
 
-    test('Initializes schema and seeds default categories and settings', () async {
+    test('Initializes schema with clean slate (0 presets) and default app settings', () async {
       final categories = await dbHelper.getAllCategories();
-      expect(categories.length, equals(7));
+      expect(categories.length, equals(0)); // Presets removed
 
-      final expenses = await dbHelper.getCategoriesByType(CategoryType.expense);
-      expect(expenses.length, equals(5));
-      expect(expenses.map((c) => c.name), containsAll([
-        'Food & Dining',
-        'Travel & Commute',
-        'House Rent',
-        'Utilities',
-        'Miscellaneous',
-      ]));
-
-      final investments = await dbHelper.getCategoriesByType(CategoryType.investment);
-      expect(investments.length, equals(2));
-      expect(investments.map((c) => c.name), containsAll([
-        'SIP & Mutual Funds',
-        'Emergency Fund',
-      ]));
+      final templates = await dbHelper.getAllTemplates();
+      expect(templates.length, equals(0)); // Presets removed
 
       final currency = await dbHelper.getSetting('currency_symbol');
       expect(currency, equals('₹'));
 
       final cycleStartDay = await dbHelper.getSetting('cycle_start_day');
       expect(cycleStartDay, equals('1'));
+    });
+
+    test('Allows inserting custom categories and querying by type', () async {
+      await dbHelper.insertCategory(const CategoryModel(
+        name: 'Groceries',
+        budgetLimit: 5000.0,
+        type: CategoryType.expense,
+      ));
+      await dbHelper.insertCategory(const CategoryModel(
+        name: 'Emergency Fund',
+        budgetLimit: 10000.0,
+        type: CategoryType.investment,
+      ));
+
+      final expenses = await dbHelper.getCategoriesByType(CategoryType.expense);
+      expect(expenses.length, equals(1));
+      expect(expenses.first.name, equals('Groceries'));
+
+      final investments = await dbHelper.getCategoriesByType(CategoryType.investment);
+      expect(investments.length, equals(1));
+      expect(investments.first.name, equals('Emergency Fund'));
     });
 
     test('Records income entries and calculates total income for cycle month', () async {
@@ -62,20 +68,17 @@ void main() {
         cycleMonth: '2026-11',
         createdAt: now,
       ));
-
       await dbHelper.insertIncome(IncomeModel(
-        source: 'Freelance Bonus',
+        source: 'Freelance Design',
         amount: 15000.0,
         cycleMonth: '2026-11',
         createdAt: now + 1000,
       ));
-
-      // Another month to verify filtering
       await dbHelper.insertIncome(IncomeModel(
-        source: 'Previous Salary',
+        source: 'Previous Month Salary',
         amount: 80000.0,
         cycleMonth: '2026-10',
-        createdAt: now - 100000,
+        createdAt: now - 30 * 86400000,
       ));
 
       final incomesNov = await dbHelper.getIncomesForMonth('2026-11');
@@ -89,14 +92,21 @@ void main() {
     });
 
     test('Inserts transactions and calculates category spent per cycle month', () async {
-      final categories = await dbHelper.getAllCategories();
-      final foodCat = categories.firstWhere((c) => c.name == 'Food & Dining');
-      final travelCat = categories.firstWhere((c) => c.name == 'Travel & Commute');
+      final foodCatId = await dbHelper.insertCategory(const CategoryModel(
+        name: 'Food & Dining',
+        budgetLimit: 5000.0,
+        type: CategoryType.expense,
+      ));
+      final travelCatId = await dbHelper.insertCategory(const CategoryModel(
+        name: 'Travel & Commute',
+        budgetLimit: 3000.0,
+        type: CategoryType.expense,
+      ));
 
       final now = DateTime.now().millisecondsSinceEpoch;
 
       await dbHelper.insertTransaction(TransactionModel(
-        categoryId: foodCat.id!,
+        categoryId: foodCatId,
         amount: 450.0,
         description: 'Lunch',
         cycleMonth: '2026-11',
@@ -104,7 +114,7 @@ void main() {
       ));
 
       await dbHelper.insertTransaction(TransactionModel(
-        categoryId: foodCat.id!,
+        categoryId: foodCatId,
         amount: 850.0,
         description: 'Groceries',
         cycleMonth: '2026-11',
@@ -112,17 +122,17 @@ void main() {
       ));
 
       await dbHelper.insertTransaction(TransactionModel(
-        categoryId: travelCat.id!,
+        categoryId: travelCatId,
         amount: 200.0,
         description: 'Metro',
         cycleMonth: '2026-11',
         createdAt: now + 1000,
       ));
 
-      final foodSpent = await dbHelper.getCategorySpentForMonth(foodCat.id!, '2026-11');
+      final foodSpent = await dbHelper.getCategorySpentForMonth(foodCatId, '2026-11');
       expect(foodSpent, equals(1300.0));
 
-      final travelSpent = await dbHelper.getCategorySpentForMonth(travelCat.id!, '2026-11');
+      final travelSpent = await dbHelper.getCategorySpentForMonth(travelCatId, '2026-11');
       expect(travelSpent, equals(200.0));
 
       final allNovTxs = await dbHelper.getTransactionsForMonth('2026-11');
@@ -130,11 +140,14 @@ void main() {
     });
 
     test('Enforces foreign key constraint on deleting category with active transactions', () async {
-      final categories = await dbHelper.getAllCategories();
-      final foodCat = categories.firstWhere((c) => c.name == 'Food & Dining');
+      final foodCatId = await dbHelper.insertCategory(const CategoryModel(
+        name: 'Food & Dining',
+        budgetLimit: 5000.0,
+        type: CategoryType.expense,
+      ));
 
       await dbHelper.insertTransaction(TransactionModel(
-        categoryId: foodCat.id!,
+        categoryId: foodCatId,
         amount: 300.0,
         description: 'Snacks',
         cycleMonth: '2026-11',
@@ -143,27 +156,30 @@ void main() {
 
       // Attempting to delete category should fail due to ON DELETE RESTRICT
       expect(
-        () async => await dbHelper.deleteCategory(foodCat.id!),
+        () async => await dbHelper.deleteCategory(foodCatId),
         throwsA(isA<DatabaseException>()),
       );
     });
 
     test('Manages recurring templates and goals CRUD operations', () async {
-      final categories = await dbHelper.getAllCategories();
-      final rentCat = categories.firstWhere((c) => c.name == 'House Rent');
+      final rentCatId = await dbHelper.insertCategory(const CategoryModel(
+        name: 'House Rent',
+        budgetLimit: 22000.0,
+        type: CategoryType.expense,
+      ));
 
       // 1. Template
       final templateId = await dbHelper.insertTemplate(TemplateModel(
         title: 'Monthly Rent',
-        categoryId: rentCat.id!,
+        categoryId: rentCatId,
         defaultAmount: 22000.0,
         defaultDescription: 'Apartment Rent',
       ));
       expect(templateId, greaterThan(0));
 
       final templates = await dbHelper.getAllTemplates();
-      expect(templates.length, equals(4)); // 3 seeded + 1 inserted
-      expect(templates.any((t) => t.title == 'Monthly Rent'), isTrue);
+      expect(templates.length, equals(1));
+      expect(templates.first.title, equals('Monthly Rent'));
 
       // 2. Goal
       final goalId = await dbHelper.insertGoal(GoalModel(
@@ -181,6 +197,31 @@ void main() {
       expect(goals.first.targetAmount, equals(150000.0));
       expect(goals.first.currentSaved, equals(20000.0));
     });
+
+    test('resetToScratch clears all tables completely', () async {
+      final catId = await dbHelper.insertCategory(const CategoryModel(
+        name: 'Sample',
+        budgetLimit: 1000.0,
+        type: CategoryType.expense,
+      ));
+      await dbHelper.insertTransaction(TransactionModel(
+        categoryId: catId,
+        amount: 100.0,
+        cycleMonth: '2026-11',
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      ));
+      await dbHelper.insertIncome(IncomeModel(
+        source: 'Income',
+        amount: 1000.0,
+        cycleMonth: '2026-11',
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      ));
+
+      await dbHelper.resetToScratch();
+
+      expect((await dbHelper.getAllCategories()).length, equals(0));
+      expect((await dbHelper.getTransactionsForMonth('2026-11')).length, equals(0));
+      expect((await dbHelper.getIncomesForMonth('2026-11')).length, equals(0));
+    });
   });
 }
-

@@ -43,6 +43,7 @@ class _InteractiveBalanceCardState extends State<InteractiveBalanceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final burnPct = widget.totalInflow > 0
         ? (widget.totalBurned / widget.totalInflow).clamp(0.0, 1.0)
         : 0.0;
@@ -94,7 +95,9 @@ class _InteractiveBalanceCardState extends State<InteractiveBalanceCard> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: widget.unspent >= 0 ? AppColors.sage : AppColors.terracotta,
+                        color: widget.unspent >= 0
+                            ? (isDark ? const Color(0xFF68B29A) : AppColors.sage)
+                            : AppColors.terracotta,
                       ),
                     ),
                   ],
@@ -111,7 +114,7 @@ class _InteractiveBalanceCardState extends State<InteractiveBalanceCard> {
                 child: Container(
                   height: 12,
                   width: double.infinity,
-                  color: const Color(0xFFF0EFEA),
+                  color: isDark ? const Color(0xFF2E3236) : const Color(0xFFE2E0D8),
                   child: Row(
                     children: [
                       if (burnPct > 0)
@@ -144,7 +147,7 @@ class _InteractiveBalanceCardState extends State<InteractiveBalanceCard> {
                               'Unspent: ${CurrencyFormatter.format(widget.unspent, symbol: widget.currencySymbol)} • ${(unspentPct * 100).toStringAsFixed(0)}%',
                               AppColors.charcoal,
                             ),
-                            child: Container(color: AppColors.neutralSlate),
+                            child: Container(color: isDark ? const Color(0xFF4A5568) : AppColors.neutralSlate),
                           ),
                         ),
                     ],

@@ -2,6 +2,7 @@ import 'package:finance_tracker/core/database/database_helper.dart';
 import 'package:finance_tracker/features/budget/budget_controller.dart';
 import 'package:finance_tracker/features/budget/budget_repository.dart';
 import 'package:finance_tracker/main.dart';
+import 'package:finance_tracker/shared/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -27,6 +28,10 @@ void main() {
 
   testWidgets('FinanceTrackerApp renders Phase 2 MainShell with HomeScreen and Envelopes', (WidgetTester tester) async {
     await tester.runAsync(() async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 5000.0, type: CategoryType.expense);
+      await controller.createCategory(name: 'Travel & Commute', budgetLimit: 3000.0, type: CategoryType.expense);
+      await controller.createCategory(name: 'SIP & Mutual Funds', budgetLimit: 15000.0, type: CategoryType.investment);
+      await controller.createCategory(name: 'Emergency Fund', budgetLimit: 10000.0, type: CategoryType.investment);
       await tester.pumpWidget(FinanceTrackerApp(controller: controller));
       await Future.delayed(const Duration(milliseconds: 200));
     });

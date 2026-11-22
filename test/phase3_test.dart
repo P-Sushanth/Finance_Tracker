@@ -1,23 +1,24 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:finance_tracker/core/database/database_helper.dart';
 import 'package:finance_tracker/core/utils/date_helpers.dart';
 import 'package:finance_tracker/features/budget/budget_controller.dart';
 import 'package:finance_tracker/features/budget/budget_repository.dart';
 import 'package:finance_tracker/features/quick_add/quick_add_sheet.dart';
 import 'package:finance_tracker/features/templates/templates_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:finance_tracker/shared/models/category_model.dart';
 
 void main() {
   sqfliteFfiInit();
 
-  group('Phase 3: Recurring Templates & Monthly Reset Engine Tests', () {
+  group('Phase 3: Controller & Interaction Logic Tests', () {
     late DatabaseHelper dbHelper;
     late BudgetController controller;
     late String dbName;
 
     setUp(() async {
-      dbName = 'test_phase3_unit_${DateTime.now().microsecondsSinceEpoch}.db';
+      dbName = 'phase3_test_${DateTime.now().microsecondsSinceEpoch}.db';
       dbHelper = DatabaseHelper.withFactory(
         factory: databaseFactoryFfi,
         customPath: dbName,
@@ -32,19 +33,12 @@ void main() {
       await databaseFactoryFfi.deleteDatabase(dbName);
     });
 
-    test('Seeded recurring templates are loaded into state', () {
-      expect(controller.templates.length, equals(3));
-      final rent = controller.templates.firstWhere((t) => t.title == 'Monthly House Rent');
-      expect(rent.defaultAmount, equals(22000.0));
-
-      final sip = controller.templates.firstWhere((t) => t.title == 'Nifty 50 Index SIP');
-      expect(sip.defaultAmount, equals(15000.0));
-
-      final wifi = controller.templates.firstWhere((t) => t.title == 'Fiber WiFi Bill');
-      expect(wifi.defaultAmount, equals(999.0));
+    test('Initializes with 0 templates (clean slate)', () {
+      expect(controller.templates.length, equals(0));
     });
 
     test('Template CRUD operations work seamlessly', () async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
 
       // 1. Create Template
@@ -55,7 +49,7 @@ void main() {
         defaultDescription: 'Groceries and veggies',
       );
 
-      expect(controller.templates.length, equals(4));
+      expect(controller.templates.length, equals(1));
       final newTemplate = controller.templates.firstWhere((t) => t.title == 'Weekly Meal Prep');
       expect(newTemplate.defaultAmount, equals(2500.0));
 
@@ -72,11 +66,20 @@ void main() {
 
       // 3. Delete Template
       await controller.deleteTemplate(newTemplate.id!);
-      expect(controller.templates.length, equals(3));
+      expect(controller.templates.length, equals(0));
       expect(controller.templates.any((t) => t.id == newTemplate.id), isFalse);
     });
 
     test('1-Tap Apply Template logs transaction immediately to active cycle', () async {
+      await controller.createCategory(name: 'House Rent', budgetLimit: 22000.0, type: CategoryType.expense);
+      final rentCat = controller.categories.firstWhere((c) => c.name == 'House Rent');
+      await controller.createTemplate(
+        title: 'Monthly House Rent',
+        categoryId: rentCat.id!,
+        defaultAmount: 22000.0,
+        defaultDescription: 'House Rent',
+      );
+
       final rentTemplate = controller.templates.firstWhere((t) => t.title == 'Monthly House Rent');
 
       expect(controller.transactions.length, equals(0));
@@ -93,6 +96,7 @@ void main() {
     });
 
     test('Monthly cycle switcher isolates past months and resets current month balances', () async {
+      await controller.createCategory(name: 'Utilities', budgetLimit: 5000.0, type: CategoryType.expense);
       // 1. Log data in 2026-11
       await controller.addIncome(source: 'Salary', amount: 80000.0);
       final utilCat = controller.categories.firstWhere((c) => c.name == 'Utilities');
@@ -158,6 +162,7 @@ void main() {
 
       await tester.runAsync(() async {
         await controller.loadBudgetData('2026-11');
+        await controller.createCategory(name: 'Food & Dining', budgetLimit: 10000.0, type: CategoryType.expense);
       });
 
       await tester.pumpWidget(
@@ -216,6 +221,7 @@ void main() {
 
       await tester.runAsync(() async {
         await controller.loadBudgetData('2026-11');
+        await controller.createCategory(name: 'Food & Dining', budgetLimit: 10000.0, type: CategoryType.expense);
       });
 
       await tester.pumpWidget(
@@ -228,6 +234,9 @@ void main() {
         ),
       );
       await tester.pump();
+
+      // In Outflow mode, category is visible
+      expect(find.text('Food & Dining'), findsOneWidget);
 
       // Switch to Inflow mode
       await tester.tap(find.text('Inflow'));
@@ -278,6 +287,14 @@ void main() {
 
       await tester.runAsync(() async {
         await controller.loadBudgetData('2026-11');
+        await controller.createCategory(name: 'House Rent', budgetLimit: 22000.0, type: CategoryType.expense);
+        final rentCat = controller.categories.firstWhere((c) => c.name == 'House Rent');
+        await controller.createTemplate(
+          title: 'Monthly House Rent',
+          categoryId: rentCat.id!,
+          defaultAmount: 22000.0,
+          defaultDescription: 'Apartment Rent',
+        );
       });
 
       await tester.pumpWidget(
@@ -287,18 +304,16 @@ void main() {
       );
       await tester.pump();
 
-      // Verify seeded templates are displayed
+      // Verify template is displayed
       expect(find.text('Monthly House Rent'), findsOneWidget);
-      expect(find.text('Nifty 50 Index SIP'), findsOneWidget);
-      expect(find.text('Fiber WiFi Bill'), findsOneWidget);
 
-      // Find "Apply Now" buttons (3 buttons for 3 templates)
-      final applyButtons = find.text('Apply Now');
-      expect(applyButtons, findsNWidgets(3));
+      // Find "Apply Now" button
+      final applyButton = find.text('Apply Now');
+      expect(applyButton, findsOneWidget);
 
-      // Tap the first "Apply Now" (Monthly House Rent)
+      // Tap "Apply Now" (Monthly House Rent)
       await tester.runAsync(() async {
-        await tester.tap(applyButtons.first);
+        await tester.tap(applyButton);
         await tester.pump();
         for (int i = 0; i < 20 && controller.transactions.isEmpty; i++) {
           await Future.delayed(const Duration(milliseconds: 50));

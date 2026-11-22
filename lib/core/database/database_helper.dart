@@ -95,7 +95,7 @@ class DatabaseHelper {
   }
 
   Future<void> _seedInitialData(Database db) async {
-    // 1. Seed Default Settings
+    // 1. Seed Essential Settings (Currency symbol & Cycle start day)
     await db.insert(
       DatabaseTables.appSettings,
       const AppSettingModel(key: 'currency_symbol', value: '₹').toMap(),
@@ -104,110 +104,20 @@ class DatabaseHelper {
       DatabaseTables.appSettings,
       const AppSettingModel(key: 'cycle_start_day', value: '1').toMap(),
     );
+    // Presets removed: User begins with a clean slate to add custom envelopes from scratch.
+  }
 
-    // 2. Seed Default Expense Categories
-    final defaultExpenses = [
-      const CategoryModel(
-        name: 'Food & Dining',
-        budgetLimit: 0.0,
-        type: CategoryType.expense,
-        iconName: 'utensils',
-        sortOrder: 1,
-      ),
-      const CategoryModel(
-        name: 'Travel & Commute',
-        budgetLimit: 0.0,
-        type: CategoryType.expense,
-        iconName: 'navigation',
-        sortOrder: 2,
-      ),
-      const CategoryModel(
-        name: 'House Rent',
-        budgetLimit: 0.0,
-        type: CategoryType.expense,
-        iconName: 'home',
-        sortOrder: 3,
-      ),
-      const CategoryModel(
-        name: 'Utilities',
-        budgetLimit: 0.0,
-        type: CategoryType.expense,
-        iconName: 'wifi',
-        sortOrder: 4,
-      ),
-      const CategoryModel(
-        name: 'Miscellaneous',
-        budgetLimit: 0.0,
-        type: CategoryType.expense,
-        iconName: 'misc',
-        sortOrder: 5,
-      ),
-    ];
-
-    for (final category in defaultExpenses) {
-      await db.insert(DatabaseTables.categories, category.toMap());
-    }
-
-    // 3. Seed Default Investment / Growth Categories
-    final defaultInvestments = [
-      const CategoryModel(
-        name: 'SIP & Mutual Funds',
-        budgetLimit: 0.0,
-        type: CategoryType.investment,
-        iconName: 'trending_up',
-        sortOrder: 6,
-      ),
-      const CategoryModel(
-        name: 'Emergency Fund',
-        budgetLimit: 0.0,
-        type: CategoryType.investment,
-        iconName: 'shield',
-        sortOrder: 7,
-      ),
-    ];
-
-    for (final category in defaultInvestments) {
-      await db.insert(DatabaseTables.categories, category.toMap());
-    }
-
-    // 4. Seed Default Templates (Linked to seeded categories)
-    final categories = await db.query(DatabaseTables.categories);
-    final rentCat = categories.firstWhere((c) => c['name'] == 'House Rent');
-    final sipCat = categories.firstWhere((c) => c['name'] == 'SIP & Mutual Funds');
-    final utilCat = categories.firstWhere((c) => c['name'] == 'Utilities');
-
-    await db.insert(
-      DatabaseTables.templates,
-      TemplateModel(
-        title: 'Monthly House Rent',
-        categoryId: rentCat['id'] as int,
-        defaultAmount: 22000.0,
-        defaultDescription: 'House Rent',
-        sortOrder: 1,
-      ).toMap(),
-    );
-
-    await db.insert(
-      DatabaseTables.templates,
-      TemplateModel(
-        title: 'Nifty 50 Index SIP',
-        categoryId: sipCat['id'] as int,
-        defaultAmount: 15000.0,
-        defaultDescription: 'Index Fund SIP',
-        sortOrder: 2,
-      ).toMap(),
-    );
-
-    await db.insert(
-      DatabaseTables.templates,
-      TemplateModel(
-        title: 'Fiber WiFi Bill',
-        categoryId: utilCat['id'] as int,
-        defaultAmount: 999.0,
-        defaultDescription: 'Broadband',
-        sortOrder: 3,
-      ).toMap(),
-    );
+  /// Clears all categories, templates, transactions, incomes, and goals
+  /// leaving the app in a 100% clean state for starting from scratch.
+  Future<void> resetToScratch() async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(DatabaseTables.transactions);
+      await txn.delete(DatabaseTables.incomes);
+      await txn.delete(DatabaseTables.templates);
+      await txn.delete(DatabaseTables.goals);
+      await txn.delete(DatabaseTables.categories);
+    });
   }
 
   // ================= CATEGORY QUERIES =================

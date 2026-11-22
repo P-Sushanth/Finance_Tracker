@@ -48,7 +48,12 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
     if (name.isEmpty) return;
 
     if (widget.categoryToEdit != null) {
-      await widget.controller.updateCategoryBudget(widget.categoryToEdit!.id!, budget);
+      final updated = widget.categoryToEdit!.copyWith(
+        name: name,
+        budgetLimit: budget,
+        type: _selectedType,
+      );
+      await widget.controller.updateCategory(updated);
     } else {
       await widget.controller.createCategory(
         name: name,
@@ -60,34 +65,88 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
     if (mounted) Navigator.of(context).pop();
   }
 
+  Future<void> _handleDelete() async {
+    if (widget.categoryToEdit?.id == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Envelope', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        content: Text(
+          'Are you sure you want to delete "${widget.categoryToEdit!.name}"? Past transactions in this category will be preserved in historical records.',
+          style: const TextStyle(fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.terracotta,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await widget.controller.deleteCategory(widget.categoryToEdit!.id!);
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.categoryToEdit != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inputFill = isDark ? const Color(0xFF2C3034) : const Color(0xFFF3F1EC);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(22),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              isEditing ? 'Edit Category Budget' : 'New Envelope Category',
-              style: Theme.of(context).textTheme.titleLarge,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isEditing ? 'Edit Envelope' : 'New Envelope Category',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                if (isEditing)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded, color: AppColors.terracotta, size: 22),
+                    tooltip: 'Delete Envelope',
+                    onPressed: _handleDelete,
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
 
             // Category Name Input
             TextField(
               controller: _nameController,
-              enabled: !isEditing,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Category Name',
-                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: inputFill,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -100,67 +159,101 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
             TextField(
               controller: _budgetController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              autofocus: true,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: _selectedType == CategoryType.investment ? 'Target Goal (₹)' : 'Monthly Budget (₹)',
-                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 prefixText: '${widget.controller.currencySymbol} ',
+                prefixStyle: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white70 : AppColors.textPrimaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: inputFill,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            // Type selector (only when creating new category)
-            if (!isEditing) ...[
-              const Text(
-                'TYPE',
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondaryLight),
+            // Type selector
+            Text(
+              'CLASSIFICATION TYPE',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
               ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Center(child: Text('Expense')),
-                      selected: _selectedType == CategoryType.expense,
-                      selectedColor: AppColors.terracottaLight,
-                      labelStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _selectedType == CategoryType.expense ? AppColors.terracotta : AppColors.textSecondaryLight,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => setState(() => _selectedType = CategoryType.expense),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _selectedType == CategoryType.expense
+                            ? AppColors.terracotta
+                            : inputFill,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onSelected: (val) {
-                        if (val) setState(() => _selectedType = CategoryType.expense);
-                      },
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Outflow (Expense)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: _selectedType == CategoryType.expense
+                              ? Colors.white
+                              : (isDark ? Colors.white70 : AppColors.textPrimaryLight),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Center(child: Text('Growth')),
-                      selected: _selectedType == CategoryType.investment,
-                      selectedColor: AppColors.sageLight,
-                      labelStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _selectedType == CategoryType.investment ? AppColors.sage : AppColors.textSecondaryLight,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => setState(() => _selectedType = CategoryType.investment),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _selectedType == CategoryType.investment
+                            ? AppColors.sage
+                            : inputFill,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onSelected: (val) {
-                        if (val) setState(() => _selectedType = CategoryType.investment);
-                      },
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Growth (Asset)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: _selectedType == CategoryType.investment
+                              ? Colors.white
+                              : (isDark ? Colors.white70 : AppColors.textPrimaryLight),
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ] else ...[
-              const SizedBox(height: 8),
-            ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
 
             // Action Buttons
             Row(
@@ -168,7 +261,13 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -176,10 +275,11 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
                     backgroundColor: AppColors.charcoal,
                     foregroundColor: Colors.white,
                     elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: _handleSave,
-                  child: const Text('Save Budget'),
+                  child: Text(isEditing ? 'Update Envelope' : 'Save Envelope', style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
@@ -189,4 +289,3 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
     );
   }
 }
-

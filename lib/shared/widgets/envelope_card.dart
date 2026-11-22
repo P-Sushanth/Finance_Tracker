@@ -38,6 +38,7 @@ class EnvelopeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isInvestment = category.type == CategoryType.investment;
     final remaining = category.budgetLimit - spent;
     final isOverbudget = !isInvestment && remaining < 0;
@@ -62,18 +63,22 @@ class EnvelopeCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
-                          color: isInvestment
-                              ? AppColors.sageLight
-                              : const Color(0xFFF0EFEA),
+                          color: isDark
+                              ? const Color(0xFF2C3034)
+                              : (isInvestment
+                                  ? AppColors.sageLight
+                                  : const Color(0xFFEBE8E0)),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           _getCategoryIcon(category.iconName, category.type),
-                          size: 18,
-                          color: isInvestment ? AppColors.sage : AppColors.charcoal,
+                          size: 19,
+                          color: isInvestment
+                              ? AppColors.sage
+                              : (isDark ? Colors.white : AppColors.charcoal),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -82,13 +87,19 @@ class EnvelopeCard extends StatelessWidget {
                         children: [
                           Text(
                             category.name,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             isInvestment
                                 ? 'Target ${CurrencyFormatter.format(category.budgetLimit, symbol: currencySymbol)}'
                                 : 'Budget ${CurrencyFormatter.format(category.budgetLimit, symbol: currencySymbol)}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 11),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ],
                       ),
@@ -106,9 +117,12 @@ class EnvelopeCard extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           color: isInvestment
                               ? AppColors.sage
-                              : (isOverbudget ? AppColors.terracotta : AppColors.charcoal),
+                              : (isOverbudget
+                                  ? AppColors.terracotta
+                                  : (isDark ? Colors.white : AppColors.charcoal)),
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         isInvestment
                             ? (category.budgetLimit > 0 && spent >= category.budgetLimit
@@ -117,29 +131,34 @@ class EnvelopeCard extends StatelessWidget {
                             : '${CurrencyFormatter.format(spent, symbol: currencySymbol)} spent',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontSize: 10,
-                              color: isOverbudget ? AppColors.terracotta : AppColors.textSecondaryLight,
+                              fontWeight: FontWeight.w600,
+                              color: isOverbudget
+                                  ? AppColors.terracotta
+                                  : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                             ),
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
-              // Progress Bar
+              // Progress Bar with clear track background
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: Container(
                   height: 6,
                   width: double.infinity,
-                  color: const Color(0xFFF0EFEA),
+                  color: isDark ? const Color(0xFF2E3236) : const Color(0xFFE2E0D8),
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress,
                     child: Container(
                       color: isInvestment
                           ? AppColors.sage
-                          : (isOverbudget ? AppColors.terracotta : AppColors.charcoal),
+                          : (isOverbudget
+                              ? AppColors.terracotta
+                              : (isDark ? AppColors.sageMuted : AppColors.charcoal)),
                     ),
                   ),
                 ),

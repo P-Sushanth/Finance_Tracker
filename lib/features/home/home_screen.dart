@@ -395,14 +395,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
 
-            // 2-Page Segmented Tab Header (Clean, no color dots)
+            // 2-Page Segmented Tab Header (Clean, high contrast)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEBE9E1),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF262A2E)
+                        : const Color(0xFFE8E5DD),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
@@ -410,9 +412,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       GestureDetector(
                         onTap: () => setState(() => _envelopeTab = 'expenses'),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                           decoration: BoxDecoration(
-                            color: _envelopeTab == 'expenses' ? Colors.white : Colors.transparent,
+                            color: _envelopeTab == 'expenses'
+                                ? (Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.surfaceDark
+                                    : Colors.white)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: _envelopeTab == 'expenses'
                                 ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))]
@@ -423,7 +429,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: _envelopeTab == 'expenses' ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
+                              color: _envelopeTab == 'expenses'
+                                  ? (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white
+                                      : AppColors.textPrimaryLight)
+                                  : (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white70
+                                      : AppColors.textSecondaryLight),
                             ),
                           ),
                         ),
@@ -432,9 +444,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       GestureDetector(
                         onTap: () => setState(() => _envelopeTab = 'growth'),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                           decoration: BoxDecoration(
-                            color: _envelopeTab == 'growth' ? Colors.white : Colors.transparent,
+                            color: _envelopeTab == 'growth'
+                                ? (Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.surfaceDark
+                                    : Colors.white)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: _envelopeTab == 'growth'
                                 ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))]
@@ -445,7 +461,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: _envelopeTab == 'growth' ? AppColors.textPrimaryLight : AppColors.textSecondaryLight,
+                              color: _envelopeTab == 'growth'
+                                  ? (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white
+                                      : AppColors.textPrimaryLight)
+                                  : (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white70
+                                      : AppColors.textSecondaryLight),
                             ),
                           ),
                         ),
@@ -455,13 +477,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 TextButton.icon(
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF262A2E)
+                        : const Color(0xFFEAE7DF),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () => _openEditBudgetModal(),
-                  icon: const Icon(Icons.add, size: 16, color: AppColors.textSecondaryLight),
-                  label: const Text(
+                  icon: const Icon(Icons.add_rounded, size: 16, color: AppColors.sage),
+                  label: Text(
                     'New Envelope',
-                    style: TextStyle(fontSize: 11, color: AppColors.textSecondaryLight, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : AppColors.textPrimaryLight,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -471,7 +503,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // Envelopes List
             if (_envelopeTab == 'expenses') ...[
               if (controller.expenseCategories.isEmpty)
-                const _EmptyState(text: 'No expense envelopes found')
+                _EmptyState(
+                  text: 'No expense envelopes yet. Create envelopes to set monthly spending limits.',
+                  actionLabel: 'Create Expense Envelope',
+                  onAction: () => _openEditBudgetModal(),
+                )
               else
                 ...controller.expenseCategories.map((cat) {
                   return Padding(
@@ -486,7 +522,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 }),
             ] else ...[
               if (controller.investmentCategories.isEmpty)
-                const _EmptyState(text: 'No growth envelopes found')
+                _EmptyState(
+                  text: 'No growth envelopes yet. Create envelopes to track investments, SIPs, and savings.',
+                  actionLabel: 'Create Growth Envelope',
+                  onAction: () => _openEditBudgetModal(),
+                )
               else
                 ...controller.investmentCategories.map((cat) {
                   return Padding(
@@ -616,16 +656,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _EmptyState extends StatelessWidget {
   final String text;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
-  const _EmptyState({required this.text});
+  const _EmptyState({
+    required this.text,
+    this.actionLabel,
+    this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          children: [
+            const Icon(Icons.account_balance_wallet_outlined, size: 36, color: AppColors.textSecondaryLight),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 14),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.charcoal,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: onAction,
+                icon: const Icon(Icons.add_rounded, size: 16),
+                label: Text(actionLabel!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ],
         ),
       ),
     );

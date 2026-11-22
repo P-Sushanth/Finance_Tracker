@@ -41,6 +41,7 @@ void main() {
     });
 
     test('Export produces valid JSON schema with all required tables', () async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 10000.0, type: CategoryType.expense);
       await controller.addIncome(source: 'Primary Salary', amount: 95000.0);
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
       await controller.recordTransaction(
@@ -76,6 +77,7 @@ void main() {
     });
 
     test('Export produces spreadsheet-compatible CSV formatted transactions', () async {
+      await controller.createCategory(name: 'Utilities', budgetLimit: 5000.0, type: CategoryType.expense);
       final utilCat = controller.categories.firstWhere((c) => c.name == 'Utilities');
       await controller.recordTransaction(
         categoryId: utilCat.id!,
@@ -97,6 +99,7 @@ void main() {
 
     test('Restore completely repopulates database tables from JSON backup', () async {
       // 1. Log rich state in database
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 10000.0, type: CategoryType.expense);
       await controller.addIncome(source: 'Initial Salary', amount: 80000.0);
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
       await controller.recordTransaction(categoryId: foodCat.id!, amount: 4500.0, description: 'Dining');

@@ -158,7 +158,7 @@ class _DockButton extends StatelessWidget {
       icon: Icon(
         icon,
         size: 22,
-        color: isSelected ? Colors.white : Colors.white38,
+        color: isSelected ? Colors.white : const Color(0xFF9EAAB2),
       ),
     );
   }

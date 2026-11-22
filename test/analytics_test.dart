@@ -3,6 +3,7 @@ import 'package:finance_tracker/features/analytics/analytics_screen.dart';
 import 'package:finance_tracker/features/analytics/donut_chart.dart';
 import 'package:finance_tracker/features/budget/budget_controller.dart';
 import 'package:finance_tracker/features/budget/budget_repository.dart';
+import 'package:finance_tracker/shared/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -32,6 +33,9 @@ void main() {
     });
 
     test('Calculates Net Flow Split percentages accurately', () async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
+      await controller.createCategory(name: 'SIP & Mutual Funds', budgetLimit: 0, type: CategoryType.investment);
+
       // Total Inflow = 100,000
       await controller.addIncome(source: 'Salary', amount: 100000.0);
 
@@ -55,6 +59,9 @@ void main() {
     });
 
     test('Calculates Lifetime cumulative metrics across multiple monthly cycles', () async {
+      await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
+      await controller.createCategory(name: 'SIP & Mutual Funds', budgetLimit: 0, type: CategoryType.investment);
+
       final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
       final sipCat = controller.categories.firstWhere((c) => c.name == 'SIP & Mutual Funds');
 
@@ -145,6 +152,8 @@ void main() {
       // Populate test data inside runAsync
       await tester.runAsync(() async {
         await controller.loadBudgetData('2026-11');
+        await controller.createCategory(name: 'Food & Dining', budgetLimit: 0, type: CategoryType.expense);
+        await controller.createCategory(name: 'SIP & Mutual Funds', budgetLimit: 0, type: CategoryType.investment);
         await controller.addIncome(source: 'Salary', amount: 80000.0);
         final foodCat = controller.categories.firstWhere((c) => c.name == 'Food & Dining');
         final sipCat = controller.categories.firstWhere((c) => c.name == 'SIP & Mutual Funds');

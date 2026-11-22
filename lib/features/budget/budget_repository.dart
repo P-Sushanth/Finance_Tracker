@@ -53,6 +53,7 @@ class BudgetRepository {
   Future<Map<String, dynamic>> exportAllData() => _dbHelper.exportAllData();
   Future<String> exportTransactionsCsv() => _dbHelper.exportTransactionsCsv();
   Future<bool> restoreAllData(Map<String, dynamic> backup) => _dbHelper.restoreAllData(backup);
+  Future<void> resetToScratch() => _dbHelper.resetToScratch();
 
   // App Settings
   Future<String?> getSetting(String key) => _dbHelper.getSetting(key);

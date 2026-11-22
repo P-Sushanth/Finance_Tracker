@@ -216,6 +216,18 @@ class BudgetController extends ChangeNotifier {
     }
   }
 
+  // Action: Update Category
+  Future<void> updateCategory(CategoryModel category) async {
+    await _repository.updateCategory(category);
+    await loadBudgetData(_currentCycleMonth);
+  }
+
+  // Action: Delete Category
+  Future<void> deleteCategory(int categoryId) async {
+    await _repository.deleteCategory(categoryId);
+    await loadBudgetData(_currentCycleMonth);
+  }
+
   // Action: Create New Category
   Future<void> createCategory({
     required String name,
@@ -231,6 +243,12 @@ class BudgetController extends ChangeNotifier {
       sortOrder: _categories.length + 1,
     );
     await _repository.addCategory(category);
+    await loadBudgetData(_currentCycleMonth);
+  }
+
+  // Action: Reset All to Scratch (Clean Slate)
+  Future<void> resetToScratch() async {
+    await _repository.resetToScratch();
     await loadBudgetData(_currentCycleMonth);
   }
 
