@@ -49,6 +49,29 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surfaceLight,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: const TextStyle(
+          color: AppColors.textPrimaryLight,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+        ),
+        contentTextStyle: const TextStyle(
+          color: AppColors.textSecondaryLight,
+          fontSize: 13,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFFF3F1EC),
+        labelStyle: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 13),
+        hintStyle: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+      ),
       textTheme: const TextTheme(
         headlineMedium: TextStyle(
           color: AppColors.textPrimaryLight,
@@ -129,6 +152,29 @@ class AppTheme {
         color: AppColors.cardBorderDark,
         thickness: 1,
         space: 1,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surfaceDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: const TextStyle(
+          color: AppColors.textPrimaryDark,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+        ),
+        contentTextStyle: const TextStyle(
+          color: AppColors.textSecondaryDark,
+          fontSize: 13,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF262A2E),
+        labelStyle: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
+        hintStyle: const TextStyle(color: AppColors.textSecondaryDark, fontSize: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
       ),
       textTheme: const TextTheme(
         headlineMedium: TextStyle(

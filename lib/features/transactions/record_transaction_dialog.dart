@@ -53,9 +53,11 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -64,7 +66,11 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
           children: [
             Text(
               'Record Transaction',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -73,12 +79,25 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               autofocus: true,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Amount',
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 prefixText: '${widget.controller.currencySymbol} ',
+                prefixStyle: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white70 : AppColors.textPrimaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -88,9 +107,13 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
             const SizedBox(height: 12),
 
             // Category Selector Chips
-            const Text(
+            Text(
               'SELECT CATEGORY',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondaryLight),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
             ),
             const SizedBox(height: 6),
             SizedBox(
@@ -106,13 +129,18 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
                     child: ChoiceChip(
                       label: Text(cat.name),
                       selected: isSelected,
-                      selectedColor: isInvestment ? AppColors.sageLight : AppColors.charcoal,
+                      selectedColor: isInvestment
+                          ? (isDark ? const Color(0xFF1E3326) : AppColors.sageLight)
+                          : (isDark ? const Color(0xFF383E46) : AppColors.charcoal),
+                      backgroundColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF0EFEA),
                       labelStyle: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: isSelected
-                            ? (isInvestment ? AppColors.sage : Colors.white)
-                            : AppColors.textPrimaryLight,
+                            ? (isInvestment
+                                ? (isDark ? const Color(0xFF68B29A) : AppColors.sage)
+                                : Colors.white)
+                            : (isDark ? Colors.white70 : AppColors.textPrimaryLight),
                       ),
                       onSelected: (val) {
                         if (val && cat.id != null) {
@@ -129,11 +157,18 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
             // Description / Reason
             TextField(
               controller: _descController,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Reason / Description (optional)',
-                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -148,12 +183,15 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.charcoal,
+                    backgroundColor: isDark ? AppColors.sage : AppColors.charcoal,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

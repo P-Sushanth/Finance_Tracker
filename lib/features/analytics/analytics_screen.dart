@@ -139,93 +139,101 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     final filteredTransactions = _getFilteredTransactions();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          children: [
-            // Screen Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Screen Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'INFOGRAPHICS & METRICS',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Financial Analytics',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEBE9E1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    DateHelpers.formatMonthTitle(controller.currentCycleMonth),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimaryLight,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Swipable 3-Page Donut Carousel Card
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-                side: const BorderSide(color: Color(0xFFE5E2D9)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Carousel Header with Title and 3 Dots Indicator
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _getCarouselTitle(_currentCarouselPage),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimaryLight,
-                          ),
+                          'INFOGRAPHICS & METRICS',
+                          style: Theme.of(context).textTheme.labelSmall,
                         ),
-                        // 3 Pagination Dots
-                        Row(
-                          children: List.generate(3, (idx) {
-                            final isActive = _currentCarouselPage == idx;
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                              width: isActive ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: isActive ? AppColors.charcoal : const Color(0xFFD5D3CC),
-                                borderRadius: BorderRadius.circular(3),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Financial Analytics',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
                               ),
-                            );
-                          }),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF262A2E) : const Color(0xFFEBE9E1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        DateHelpers.formatMonthTitle(controller.currentCycleMonth),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Swipable 3-Page Donut Carousel Card
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: BorderSide(
+                      color: isDark ? AppColors.cardBorderDark : const Color(0xFFE5E2D9),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Carousel Header with Title and 3 Dots Indicator
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _getCarouselTitle(_currentCarouselPage),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                              ),
+                            ),
+                            // 3 Pagination Dots
+                            Row(
+                              children: List.generate(3, (idx) {
+                                final isActive = _currentCarouselPage == idx;
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                                  width: isActive ? 16 : 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? (isDark ? Colors.white : AppColors.charcoal)
+                                        : (isDark ? const Color(0xFF383D43) : const Color(0xFFD5D3CC)),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
 
                     // Swipable Carousel View
                     SizedBox(
@@ -277,7 +285,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
-                side: const BorderSide(color: Color(0xFFE5E2D9)),
+                side: BorderSide(
+                  color: isDark ? AppColors.cardBorderDark : const Color(0xFFE5E2D9),
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -287,18 +297,22 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'LIFETIME',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
-                            color: AppColors.textPrimaryLight,
+                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
                           ),
                         ),
                         Text(
                           '${controller.lifetimeMonthsCount} ${controller.lifetimeMonthsCount == 1 ? "Month" : "Months"}',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textSecondaryLight),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                          ),
                         ),
                       ],
                     ),
@@ -310,27 +324,27 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.sageLight,
+                              color: isDark ? const Color(0xFF1E3326) : AppColors.sageLight,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
                               children: [
-                                const Text(
+                                Text(
                                   'INVESTED',
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.5,
-                                    color: AppColors.sage,
+                                    color: isDark ? const Color(0xFF68B29A) : AppColors.sage,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   CurrencyFormatter.formatCompact(controller.lifetimeInvested, symbol: controller.currencySymbol),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.sage,
+                                    color: isDark ? const Color(0xFF68B29A) : AppColors.sage,
                                   ),
                                 ),
                               ],
@@ -344,27 +358,27 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF5F4F0),
+                              color: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
                               children: [
-                                const Text(
+                                Text(
                                   'SAVED',
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.5,
-                                    color: AppColors.textPrimaryLight,
+                                    color: isDark ? Colors.white : AppColors.textPrimaryLight,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   CurrencyFormatter.formatCompact(controller.lifetimeSaved, symbol: controller.currencySymbol),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimaryLight,
+                                    color: isDark ? Colors.white : AppColors.textPrimaryLight,
                                   ),
                                 ),
                               ],
@@ -378,27 +392,27 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: AppColors.terracottaLight,
+                              color: isDark ? const Color(0xFF33221E) : AppColors.terracottaLight,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
                               children: [
-                                const Text(
+                                Text(
                                   'BURNED',
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.5,
-                                    color: AppColors.terracotta,
+                                    color: isDark ? const Color(0xFFE08269) : AppColors.terracotta,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   CurrencyFormatter.formatCompact(controller.lifetimeBurned, symbol: controller.currencySymbol),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.terracotta,
+                                    color: isDark ? const Color(0xFFE08269) : AppColors.terracotta,
                                   ),
                                 ),
                               ],
@@ -538,7 +552,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   String _getCarouselTitle(int page) {

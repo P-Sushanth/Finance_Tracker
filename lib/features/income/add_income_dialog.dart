@@ -41,9 +41,11 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -52,18 +54,29 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
           children: [
             Text(
               'Add Cash Inflow',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
             ),
             const SizedBox(height: 16),
 
             // Inflow Source
             TextField(
               controller: _sourceController,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Source (e.g. Salary, Stipend, Freelance)',
-                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -77,12 +90,25 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               autofocus: true,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
-                labelText: 'Amount (₹)',
-                labelStyle: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                labelText: 'Amount (${widget.controller.currencySymbol})',
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 prefixText: '${widget.controller.currencySymbol} ',
+                prefixStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white70 : AppColors.textPrimaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -97,7 +123,10 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(

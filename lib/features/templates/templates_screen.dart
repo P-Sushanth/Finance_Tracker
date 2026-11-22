@@ -25,20 +25,34 @@ class TemplatesScreen extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context, TemplateModel template) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Preset', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+        title: Text(
+          'Delete Preset',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+          ),
+        ),
         content: Text(
           'Are you sure you want to delete "${template.title}"?',
-          style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -104,251 +118,301 @@ class TemplatesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'PRESETS & RECURRING',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '1-Tap Templates',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ],
-                ),
-                TextButton.icon(
-                  onPressed: () => _openAddOrEditDialog(context),
-                  icon: const Icon(Icons.add, size: 16, color: AppColors.charcoal),
-                  label: const Text(
-                    'New Preset',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.charcoal,
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFFEBE9E1),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Instantly log your recurring monthly expenses, SIP investments, and utility bills with a single tap.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-
-            // Templates List
-            if (controller.templates.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(28),
-                  child: Center(
-                    child: Column(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.receipt_long_outlined, size: 40, color: AppColors.textSecondaryLight),
-                        const SizedBox(height: 12),
                         Text(
-                          'No recurring templates yet.\nTap "+ New Preset" to create one for your rent, SIPs, or bills.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          textAlign: TextAlign.center,
+                          'PRESETS & RECURRING',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '1-Tap Templates',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              )
-            else
-              ...controller.templates.map((template) {
-                final category = controller.findCategoryById(template.categoryId);
-                final isInvestment = category?.type == CategoryType.investment;
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: const BorderSide(color: Color(0xFFE5E2D9)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              // Category badge icon
-                              Container(
-                                width: 34,
-                                height: 34,
-                                decoration: BoxDecoration(
-                                  color: isInvestment ? AppColors.sageLight : const Color(0xFFF0EFEA),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  isInvestment ? Icons.trending_up : Icons.arrow_outward_rounded,
-                                  size: 18,
-                                  color: isInvestment ? AppColors.sage : AppColors.terracotta,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      template.title,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimaryLight,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFEBE9E1),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            category?.name ?? 'General',
-                                            style: const TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.textSecondaryLight,
-                                            ),
-                                          ),
-                                        ),
-                                        if (template.defaultDescription != null &&
-                                            template.defaultDescription!.isNotEmpty) ...[
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                              template.defaultDescription!,
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: AppColors.textSecondaryLight,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert_rounded, size: 18, color: AppColors.textSecondaryLight),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                onSelected: (val) {
-                                  if (val == 'edit') {
-                                    _openAddOrEditDialog(context, template);
-                                  } else if (val == 'delete') {
-                                    _confirmDelete(context, template);
-                                  }
-                                },
-                                itemBuilder: (_) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.edit_outlined, size: 16, color: AppColors.textPrimaryLight),
-                                        SizedBox(width: 8),
-                                        Text('Edit Preset', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                                      ],
-                                    ),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'delete',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.terracotta),
-                                        SizedBox(width: 8),
-                                        Text('Delete', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.terracotta)),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Divider(height: 1, color: Color(0xFFEAE8E0)),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'AMOUNT',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.textSecondaryLight,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    CurrencyFormatter.format(template.defaultAmount, symbol: controller.currencySymbol),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: isInvestment ? AppColors.sage : AppColors.textPrimaryLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isInvestment ? AppColors.sage : AppColors.charcoal,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                onPressed: () => _applyPreset(context, template),
-                                icon: const Icon(Icons.bolt_rounded, size: 16),
-                                label: const Text(
-                                  'Apply Now',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    TextButton.icon(
+                      onPressed: () => _openAddOrEditDialog(context),
+                      icon: Icon(
+                        Icons.add,
+                        size: 16,
+                        color: isDark ? Colors.white : AppColors.charcoal,
+                      ),
+                      label: Text(
+                        'New Preset',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.charcoal,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: isDark ? const Color(0xFF2C3034) : const Color(0xFFEBE9E1),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
-                  ),
-                );
-              }),
-            const SizedBox(height: 70), // Bottom padding for dock
-          ],
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Instantly log your recurring monthly expenses, SIP investments, and utility bills with a single tap.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
+                ),
+                const SizedBox(height: 16),
+
+                // Templates List
+                if (controller.templates.isEmpty)
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 40,
+                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No recurring templates yet.\nTap "+ New Preset" to create one for your rent, SIPs, or bills.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ...controller.templates.map((template) {
+                    final category = controller.findCategoryById(template.categoryId);
+                    final isInvestment = category?.type == CategoryType.investment;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isDark ? AppColors.cardBorderDark : const Color(0xFFE5E2D9),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  // Category badge icon
+                                  Container(
+                                    width: 34,
+                                    height: 34,
+                                    decoration: BoxDecoration(
+                                      color: isInvestment
+                                          ? (isDark ? const Color(0xFF1E3326) : AppColors.sageLight)
+                                          : (isDark ? const Color(0xFF33221E) : const Color(0xFFF0EFEA)),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(
+                                      isInvestment ? Icons.trending_up : Icons.arrow_outward_rounded,
+                                      size: 18,
+                                      color: isInvestment
+                                          ? (isDark ? const Color(0xFF68B29A) : AppColors.sage)
+                                          : AppColors.terracotta,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          template.title,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: isDark ? const Color(0xFF2C3034) : const Color(0xFFEBE9E1),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                category?.name ?? 'General',
+                                                style: TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isDark ? const Color(0xFFBDC4CC) : AppColors.textSecondaryLight,
+                                                ),
+                                              ),
+                                            ),
+                                            if (template.defaultDescription != null &&
+                                                template.defaultDescription!.isNotEmpty) ...[
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  template.defaultDescription!,
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(
+                                      Icons.more_vert_rounded,
+                                      size: 18,
+                                      color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                                    ),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    onSelected: (val) {
+                                      if (val == 'edit') {
+                                        _openAddOrEditDialog(context, template);
+                                      } else if (val == 'delete') {
+                                        _confirmDelete(context, template);
+                                      }
+                                    },
+                                    itemBuilder: (_) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.edit_outlined,
+                                              size: 16,
+                                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Edit Preset',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.terracotta),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.terracotta,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Divider(
+                                height: 1,
+                                color: isDark ? AppColors.cardBorderDark : const Color(0xFFEAE8E0),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'AMOUNT',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        CurrencyFormatter.format(template.defaultAmount, symbol: controller.currencySymbol),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w800,
+                                          color: isInvestment
+                                              ? (isDark ? const Color(0xFF68B29A) : AppColors.sage)
+                                              : (isDark ? Colors.white : AppColors.textPrimaryLight),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: isInvestment
+                                          ? (isDark ? const Color(0xFF3A634E) : AppColors.sage)
+                                          : (isDark ? const Color(0xFF363C42) : AppColors.charcoal),
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    onPressed: () => _applyPreset(context, template),
+                                    icon: const Icon(Icons.bolt_rounded, size: 16),
+                                    label: const Text(
+                                      'Apply Now',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                const SizedBox(height: 70), // Bottom padding for dock
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -440,13 +504,18 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.templateToEdit != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AlertDialog(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Text(
         isEditing ? 'Edit Preset' : 'New Recurring Preset',
-        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+        style: TextStyle(
+          fontWeight: FontWeight.w800,
+          fontSize: 16,
+          color: isDark ? Colors.white : AppColors.textPrimaryLight,
+        ),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -455,11 +524,23 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
           children: [
             TextField(
               controller: _titleController,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Preset Title',
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 hintText: 'e.g. WiFi Bill, Index SIP, Rent',
+                hintStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
@@ -467,31 +548,58 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
             TextField(
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Default Amount (${widget.controller.currencySymbol})',
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 hintText: 'e.g. 15000',
+                hintStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Target Envelope Category',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondaryLight),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
             ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F4F0),
+                color: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF383D43) : const Color(0xFFE5E2D9),
+                ),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<int>(
                   value: _selectedCategoryId,
+                  dropdownColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                   isExpanded: true,
-                  hint: const Text('Select Category', style: TextStyle(fontSize: 12)),
+                  hint: Text(
+                    'Select Category',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    ),
+                  ),
                   items: widget.controller.categories.map((cat) {
                     final isInvestment = cat.type == CategoryType.investment;
                     return DropdownMenuItem<int>(
@@ -501,10 +609,17 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
                           Icon(
                             isInvestment ? Icons.trending_up : Icons.arrow_outward_rounded,
                             size: 16,
-                            color: isInvestment ? AppColors.sage : AppColors.terracotta,
+                            color: isInvestment ? (isDark ? const Color(0xFF68B29A) : AppColors.sage) : AppColors.terracotta,
                           ),
                           const SizedBox(width: 8),
-                          Text(cat.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          Text(
+                            cat.name,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            ),
+                          ),
                         ],
                       ),
                     );
@@ -518,11 +633,23 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _descriptionController,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
               decoration: InputDecoration(
                 labelText: 'Optional Note / Description',
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 hintText: 'e.g. Broadband connection',
+                hintStyle: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
                 filled: true,
-                fillColor: const Color(0xFFF5F4F0),
+                fillColor: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
@@ -532,11 +659,14 @@ class _TemplateEditDialogState extends State<_TemplateEditDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+          ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.charcoal,
+            backgroundColor: isDark ? AppColors.sage : AppColors.charcoal,
             foregroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -116,20 +116,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _confirmAndRestore(String jsonContent) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Restore Backup', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-        content: const Text(
+        title: Text(
+          'Restore Backup',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+          ),
+        ),
+        content: Text(
           'Restoring from this backup will replace current records with the contents of the backup file. Proceed?',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -179,16 +193,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!mounted) return;
 
       if (info.isUpdateAvailable) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Row(
               children: [
                 const Icon(Icons.system_update_rounded, color: AppColors.sage, size: 22),
                 const SizedBox(width: 8),
-                const Text('Update Available', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                Text(
+                  'Update Available',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                  ),
+                ),
               ],
             ),
             content: Column(
@@ -197,19 +219,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   'A new version (${info.latestVersionName}) is available to install.',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   info.releaseNotes,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Later', style: TextStyle(color: AppColors.textSecondaryLight)),
+                child: Text(
+                  'Later',
+                  style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -256,18 +288,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _confirmResetToScratch() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reset to Clean Slate', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-        content: const Text(
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        title: Text(
+          'Reset to Clean Slate',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+          ),
+        ),
+        content: Text(
           'This will remove all preset categories, templates, goals, and recorded transactions so you can start 100% from scratch.\n\nAre you sure you want to proceed?',
-          style: TextStyle(fontSize: 13),
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -304,51 +351,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          children: [
-            // Section 1: Data Sovereignty & Backup
-            _SectionHeader(title: 'DATA SOVEREIGNTY & BACKUP'),
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: Color(0xFFE5E2D9)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _SettingsActionTile(
-                      icon: Icons.file_download_outlined,
-                      iconColor: AppColors.sage,
-                      title: 'Export JSON Backup',
-                      subtitle: 'Full database export of envelopes, transactions, and goals.',
-                      isLoading: _isExporting,
-                      onTap: _handleExportJson,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              children: [
+                // Section 1: Data Sovereignty & Backup
+                _SectionHeader(title: 'DATA SOVEREIGNTY & BACKUP'),
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Color(0xFFE5E2D9)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _SettingsActionTile(
+                          icon: Icons.file_download_outlined,
+                          iconColor: AppColors.sage,
+                          title: 'Export JSON Backup',
+                          subtitle: 'Full database export of envelopes, transactions, and goals.',
+                          isLoading: _isExporting,
+                          onTap: _handleExportJson,
+                        ),
+                        const Divider(height: 16, color: Color(0xFFEAE8E0)),
+                        _SettingsActionTile(
+                          icon: Icons.table_chart_outlined,
+                          iconColor: AppColors.charcoal,
+                          title: 'Export CSV Transactions',
+                          subtitle: 'Spreadsheet-compatible CSV file for Google Sheets / Excel.',
+                          isLoading: _isExporting,
+                          onTap: _handleExportCsv,
+                        ),
+                        const Divider(height: 16, color: Color(0xFFEAE8E0)),
+                        _SettingsActionTile(
+                          icon: Icons.file_upload_outlined,
+                          iconColor: AppColors.terracotta,
+                          title: 'Restore Backup (JSON)',
+                          subtitle: 'Select an existing JSON backup file to restore records.',
+                          isLoading: _isRestoring,
+                          onTap: _handleRestoreFile,
+                        ),
+                      ],
                     ),
-                    const Divider(height: 16, color: Color(0xFFEAE8E0)),
-                    _SettingsActionTile(
-                      icon: Icons.table_chart_outlined,
-                      iconColor: AppColors.charcoal,
-                      title: 'Export CSV Transactions',
-                      subtitle: 'Spreadsheet-compatible CSV file for Google Sheets / Excel.',
-                      isLoading: _isExporting,
-                      onTap: _handleExportCsv,
-                    ),
-                    const Divider(height: 16, color: Color(0xFFEAE8E0)),
-                    _SettingsActionTile(
-                      icon: Icons.file_upload_outlined,
-                      iconColor: AppColors.terracotta,
-                      title: 'Restore Backup (JSON)',
-                      subtitle: 'Select an existing JSON backup file to restore records.',
-                      isLoading: _isRestoring,
-                      onTap: _handleRestoreFile,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
             const SizedBox(height: 20),
 
             // Section 2: Budget & Cycle Preferences
@@ -489,7 +539,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
@@ -534,6 +586,7 @@ class _SettingsActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: isLoading ? null : onTap,
@@ -557,24 +610,38 @@ class _SettingsActionTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimaryLight),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondaryLight),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                    ),
                   ),
                 ],
               ),
             ),
             if (isLoading)
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.charcoal),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: isDark ? Colors.white : AppColors.charcoal,
+                ),
               )
             else
-              const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textSecondaryLight),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+              ),
           ],
         ),
       ),

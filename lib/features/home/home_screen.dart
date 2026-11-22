@@ -62,10 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surfaceLight,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -77,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD5D3CC),
+                    color: isDark ? const Color(0xFF383D43) : const Color(0xFFD5D3CC),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -86,12 +87,20 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Select Monthly Cycle',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimaryLight),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.settings_outlined, size: 20, color: AppColors.textSecondaryLight),
+                    icon: Icon(
+                      Icons.settings_outlined,
+                      size: 20,
+                      color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                    ),
                     tooltip: 'Cycle Settings',
                     onPressed: () {
                       Navigator.of(ctx).pop();
@@ -103,7 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 4),
               Text(
                 'Cycle start day: ${controller.cycleStartDay}${_getDaySuffix(controller.cycleStartDay)} of each month',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                ),
               ),
               const SizedBox(height: 14),
               ...sortedMonths.map((m) {
@@ -121,9 +133,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.charcoal : const Color(0xFFF5F4F0),
+                        color: isSelected
+                            ? (isDark ? const Color(0xFF383E46) : AppColors.charcoal)
+                            : (isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0)),
                         borderRadius: BorderRadius.circular(14),
-                        border: isSelected ? null : Border.all(color: const Color(0xFFE5E2D9)),
+                        border: isSelected
+                            ? null
+                            : Border.all(
+                                color: isDark ? const Color(0xFF383D43) : const Color(0xFFE5E2D9),
+                              ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,7 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               Icon(
                                 isCurrent ? Icons.today_rounded : Icons.calendar_month_outlined,
                                 size: 18,
-                                color: isSelected ? Colors.white : AppColors.textSecondaryLight,
+                                color: isSelected
+                                    ? Colors.white
+                                    : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
                               ),
                               const SizedBox(width: 12),
                               Text(
@@ -141,7 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: isSelected ? Colors.white : AppColors.textPrimaryLight,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (isDark ? Colors.white : AppColors.textPrimaryLight),
                                 ),
                               ),
                             ],
@@ -150,7 +172,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppColors.sage : AppColors.sageLight,
+                                color: isSelected
+                                    ? AppColors.sage
+                                    : (isDark ? const Color(0xFF1E3326) : AppColors.sageLight),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -158,7 +182,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
-                                  color: isSelected ? Colors.white : AppColors.sage,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (isDark ? const Color(0xFF68B29A) : AppColors.sage),
                                 ),
                               ),
                             ),
@@ -183,35 +209,54 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           return AlertDialog(
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            title: const Text('Cycle Start Day', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            title: Text(
+              'Cycle Start Day',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Set the calendar day your monthly budget cycle resets (e.g. 1st or salary day like 25th).',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondaryLight),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F4F0),
+                    color: isDark ? const Color(0xFF262A2E) : const Color(0xFFF5F4F0),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF383D43) : const Color(0xFFE5E2D9),
+                    ),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
                       value: selectedDay,
                       isExpanded: true,
+                      dropdownColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
                       items: [1, 5, 10, 15, 20, 25, 28].map((day) {
                         return DropdownMenuItem<int>(
                           value: day,
                           child: Text(
                             '$day${_getDaySuffix(day)} of the month',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            ),
                           ),
                         );
                       }).toList(),
@@ -226,11 +271,14 @@ class _HomeScreenState extends State<HomeScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondaryLight)),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.charcoal,
+                  backgroundColor: isDark ? AppColors.sage : AppColors.charcoal,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -267,122 +315,156 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = widget.controller;
     final currentActualCycle = DateHelpers.getCycleMonthForDate(DateTime.now(), controller.cycleStartDay);
     final isViewingPastCycle = controller.currentCycleMonth != currentActualCycle;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          children: [
-            // Top Month Cycle Header (Clickable to switch cycles)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: _openCycleSelectorSheet,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                // Top Month Cycle Header (Clickable to switch cycles)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: _openCycleSelectorSheet,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'MONTHLY CYCLE',
-                              style: Theme.of(context).textTheme.labelSmall,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'MONTHLY CYCLE',
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 14,
+                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.keyboard_arrow_down_rounded, size: 14, color: AppColors.textSecondaryLight),
+                            const SizedBox(height: 2),
+                            Text(
+                              DateHelpers.formatMonthTitle(controller.currentCycleMonth),
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          DateHelpers.formatMonthTitle(controller.currentCycleMonth),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF262A2E) : const Color(0xFFEBE9E1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            DateHelpers.getCycleProgressString(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(
+                            Icons.add_circle_outline_rounded,
+                            size: 20,
+                            color: isDark ? Colors.white : AppColors.charcoal,
+                          ),
+                          tooltip: 'Quick-Add Outflow',
+                          onPressed: () => _openQuickAddModal(),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_downward_rounded,
+                            size: 20,
+                            color: isDark ? const Color(0xFF68B29A) : AppColors.sage,
+                          ),
+                          tooltip: 'Add Inflow',
+                          onPressed: _openAddIncomeModal,
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.settings_outlined,
+                            size: 20,
+                            color: isDark ? Colors.white70 : AppColors.textSecondaryLight,
+                          ),
+                          tooltip: 'Settings & Backup',
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => SettingsScreen(controller: widget.controller),
                               ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // Past Cycle Archive Indicator Banner (if viewing previous month)
+                if (isViewingPastCycle) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF262A2E) : const Color(0xFFEBE9E1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark ? AppColors.cardBorderDark : const Color(0xFFD5D3CC),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.history_rounded,
+                          size: 16,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Viewing archive for ${DateHelpers.formatMonthTitle(controller.currentCycleMonth)}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => controller.switchCycleMonth(currentActualCycle),
+                          child: Text(
+                            'Back to Current',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? const Color(0xFF68B29A) : AppColors.sage,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEBE9E1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        DateHelpers.getCycleProgressString(),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimaryLight,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded, size: 20, color: AppColors.charcoal),
-                      tooltip: 'Quick-Add Outflow',
-                      onPressed: () => _openQuickAddModal(),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_downward_rounded, size: 20, color: AppColors.sage),
-                      tooltip: 'Add Inflow',
-                      onPressed: _openAddIncomeModal,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.settings_outlined, size: 20, color: AppColors.textSecondaryLight),
-                      tooltip: 'Settings & Backup',
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => SettingsScreen(controller: widget.controller),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // Past Cycle Archive Indicator Banner (if viewing previous month)
-            if (isViewingPastCycle) ...[
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEBE9E1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFD5D3CC)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.history_rounded, size: 16, color: AppColors.textSecondaryLight),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Viewing archive for ${DateHelpers.formatMonthTitle(controller.currentCycleMonth)}',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimaryLight),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => controller.switchCycleMonth(currentActualCycle),
-                      child: const Text(
-                        'Back to Current',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.sage),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                ],
             const SizedBox(height: 16),
 
             // Interactive Balance Summary Card
@@ -650,7 +732,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
