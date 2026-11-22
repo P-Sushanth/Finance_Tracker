@@ -7,8 +7,6 @@ import '../../shared/widgets/envelope_card.dart';
 import '../../shared/widgets/interactive_balance_card.dart';
 import '../budget/budget_controller.dart';
 import '../categories/edit_budget_dialog.dart';
-import '../income/add_income_dialog.dart';
-import '../quick_add/quick_add_sheet.dart';
 import '../settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -34,17 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
         categoryToEdit: category,
       ),
     );
-  }
-
-  void _openAddIncomeModal() {
-    showDialog(
-      context: context,
-      builder: (_) => AddIncomeDialog(controller: widget.controller),
-    );
-  }
-
-  void _openQuickAddModal([int? preselectedCategoryId]) {
-    QuickAddSheet.show(context, widget.controller, preselectedCategoryId);
   }
 
   void _openCycleSelectorSheet() {
@@ -381,25 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(
-                            Icons.add_circle_outline_rounded,
-                            size: 20,
-                            color: isDark ? Colors.white : AppColors.charcoal,
-                          ),
-                          tooltip: 'Quick-Add Outflow',
-                          onPressed: () => _openQuickAddModal(),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_downward_rounded,
-                            size: 20,
-                            color: isDark ? const Color(0xFF68B29A) : AppColors.sage,
-                          ),
-                          tooltip: 'Add Inflow',
-                          onPressed: _openAddIncomeModal,
-                        ),
+                        const SizedBox(width: 4),
                         IconButton(
                           icon: Icon(
                             Icons.settings_outlined,

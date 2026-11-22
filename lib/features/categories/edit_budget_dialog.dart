@@ -43,7 +43,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
 
   Future<void> _handleSave() async {
     final name = _nameController.text.trim();
-    final budget = double.tryParse(_budgetController.text.trim()) ?? 0.0;
+    final budget = double.tryParse(_budgetController.text.replaceAll(',', '').trim()) ?? 0.0;
 
     if (name.isEmpty) return;
 

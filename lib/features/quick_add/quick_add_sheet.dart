@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/currency_formatter.dart';
 import '../../shared/models/category_model.dart';
 import '../budget/budget_controller.dart';
 import '../categories/edit_budget_dialog.dart';
@@ -221,7 +222,7 @@ class _QuickAddSheetState extends State<QuickAddSheet> {
             ),
             child: Center(
               child: Text(
-                '${controller.currencySymbol} $_amountStr',
+                '${controller.currencySymbol} ${CurrencyFormatter.formatNumberString(_amountStr)}',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,

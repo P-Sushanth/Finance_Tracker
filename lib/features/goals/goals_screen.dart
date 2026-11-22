@@ -136,8 +136,8 @@ class GoalsScreen extends StatelessWidget {
                       ),
                       onPressed: () async {
                         final title = titleController.text.trim();
-                        final target = double.tryParse(targetController.text.trim()) ?? 0.0;
-                        final monthly = double.tryParse(monthlyController.text.trim()) ?? 0.0;
+                        final target = double.tryParse(targetController.text.replaceAll(',', '').trim()) ?? 0.0;
+                        final monthly = double.tryParse(monthlyController.text.replaceAll(',', '').trim()) ?? 0.0;
 
                         if (title.isNotEmpty && target > 0) {
                           await controller.createGoal(
@@ -234,7 +234,7 @@ class GoalsScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () async {
-                        final amt = double.tryParse(amountController.text.trim()) ?? 0.0;
+                        final amt = double.tryParse(amountController.text.replaceAll(',', '').trim()) ?? 0.0;
                         if (amt > 0 && goal.id != null) {
                           await controller.addSavingsToGoal(goal.id!, amt);
                           if (ctx.mounted) Navigator.of(ctx).pop();

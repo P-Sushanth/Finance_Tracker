@@ -27,7 +27,7 @@ class _AddIncomeDialogState extends State<AddIncomeDialog> {
 
   Future<void> _handleSave() async {
     final source = _sourceController.text.trim();
-    final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final amount = double.tryParse(_amountController.text.replaceAll(',', '').trim()) ?? 0.0;
 
     if (source.isEmpty || amount <= 0) return;
 

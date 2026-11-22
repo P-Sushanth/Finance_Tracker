@@ -37,7 +37,7 @@ class _RecordTransactionDialogState extends State<RecordTransactionDialog> {
   }
 
   Future<void> _handleSave() async {
-    final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final amount = double.tryParse(_amountController.text.replaceAll(',', '').trim()) ?? 0.0;
     final desc = _descController.text.trim();
 
     if (_selectedCategoryId == null || amount <= 0) return;

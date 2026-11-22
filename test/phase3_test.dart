@@ -256,7 +256,7 @@ void main() {
       await tester.tap(find.text('0'));
       await tester.pump();
 
-      expect(find.text('₹ 4000'), findsOneWidget);
+      expect(find.text('₹ 4,000'), findsOneWidget);
 
       await tester.runAsync(() async {
         await tester.tap(find.text('Record Inflow'));
